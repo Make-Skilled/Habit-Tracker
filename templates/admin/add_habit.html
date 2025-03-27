@@ -14,6 +14,7 @@
 
         <div class="bg-white shadow rounded-lg p-6">
             <form method="POST" class="space-y-6">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700">Habit Name</label>
                     <input type="text" name="name" id="name" required

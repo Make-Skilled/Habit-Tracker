@@ -880,8 +880,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const forms = document.querySelectorAll('.habit-form');
     forms.forEach(form => {
         const button = form.querySelector('button');
+        if (!button) return;  // Skip if no button found
+        
         const streakMultiplier = button.querySelector('.streak-multiplier');
-        const streak = parseInt(form.closest('.bg-white').querySelector('.text-gray-600').textContent.match(/\d+/)[0]);
+        if (!streakMultiplier) return;  // Skip if no streak multiplier found
+        
+        const habitCard = form.closest('.habit-card');
+        if (!habitCard) return;  // Skip if no habit card found
+        
+        // Get the streak value safely
+        const streakElement = habitCard.querySelector('.stat-value');
+        const streak = streakElement ? parseInt(streakElement.textContent) : 0;
         
         if (streak > 1) {
             streakMultiplier.classList.add('show');
@@ -890,8 +899,9 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Get points and multiplier
-            const points = parseInt(this.closest('.bg-white').querySelector('.rounded-full').textContent);
+            // Get points and multiplier safely
+            const pointsElement = habitCard.querySelector('.points');
+            const points = pointsElement ? parseInt(pointsElement.textContent.match(/\d+/)[0]) : 0;
             const multiplier = Math.min(Math.floor(streak / 7) + 1, 3);
             
             // Play sound with a small delay

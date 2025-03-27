@@ -36,6 +36,7 @@ class User(UserMixin, db.Model):
         """Check and award achievements based on user's progress"""
         achievements = Achievement.query.all()
         for achievement in achievements:
+            # Check if achievement is already unlocked
             if not UserAchievement.query.filter_by(user_id=self.id, achievement_id=achievement.id).first():
                 if self._meets_achievement_requirement(achievement):
                     user_achievement = UserAchievement(self.id, achievement.id)
@@ -51,7 +52,9 @@ class User(UserMixin, db.Model):
         req_value = int(req_value)
         
         if req_type == 'complete_habits':
-            return len(self.user_habits) >= req_value
+            # Count unique habits completed
+            completed_habits = set(uh.habit_id for uh in self.user_habits if uh.last_completed)
+            return len(completed_habits) >= req_value
         elif req_type == 'streak':
             return any(uh.current_streak >= req_value for uh in self.user_habits)
         elif req_type == 'points':
