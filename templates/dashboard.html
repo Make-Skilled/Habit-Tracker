@@ -1,0 +1,926 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/party-js@latest/bundle/party.min.js"></script>
+<script>
+// Create a global confetti function using party.js
+window.fireConfetti = function() {
+    if (typeof party === 'undefined') {
+        console.error('Party.js not loaded');
+        return;
+    }
+
+    // First burst
+    party.confetti(document.body, {
+        count: party.variation.range(20, 40),
+        spread: party.variation.range(70, 90),
+        startVelocity: party.variation.range(30, 50),
+        ticks: 200,
+        gravity: 0.8,
+        decay: 0.94,
+        shapes: ['star'],
+        colors: ['#FFD700', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39', '#FFC107', '#FF9800', '#FF5722', '#795548', '#607D8B']
+    });
+    
+    // Second burst after 500ms
+    setTimeout(() => {
+        party.confetti(document.body, {
+            count: party.variation.range(20, 40),
+            spread: party.variation.range(70, 90),
+            startVelocity: party.variation.range(30, 50),
+            ticks: 200,
+            gravity: 0.8,
+            decay: 0.94,
+            shapes: ['star'],
+            colors: ['#FFD700', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39', '#FFC107', '#FF9800', '#FF5722', '#795548', '#607D8B']
+        });
+    }, 500);
+    
+    // Third burst after 1000ms
+    setTimeout(() => {
+        party.confetti(document.body, {
+            count: party.variation.range(20, 40),
+            spread: party.variation.range(70, 90),
+            startVelocity: party.variation.range(30, 50),
+            ticks: 200,
+            gravity: 0.8,
+            decay: 0.94,
+            shapes: ['star'],
+            colors: ['#FFD700', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39', '#FFC107', '#FF9800', '#FF5722', '#795548', '#607D8B']
+        });
+    }, 1000);
+};
+
+// Check for success message in URL and trigger confetti
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+        // Play success sound
+        const audio = document.getElementById('successSound');
+        if (audio) {
+            audio.currentTime = 0;
+            audio.volume = 1.0;
+            audio.play().catch(error => console.log('Sound play failed:', error));
+        }
+
+        // Show celebration overlay and popup
+        const celebrationOverlay = document.getElementById('celebrationOverlay');
+        const celebrationPopup = document.getElementById('celebrationPopup');
+        const pointsEarned = document.getElementById('pointsEarned');
+        
+        pointsEarned.textContent = `+${urlParams.get('points')} points`;
+        celebrationOverlay.style.display = 'block';
+        celebrationPopup.style.display = 'block';
+        
+        // Fire confetti with a slight delay to ensure everything is loaded
+        setTimeout(() => {
+            if (typeof window.fireConfetti === 'function') {
+                window.fireConfetti();
+                window.playSuccessSound();
+            } else {
+                console.error('Confetti function not available');
+            }
+        }, 100);
+        
+        // Hide celebration after 5 seconds
+        setTimeout(() => {
+            celebrationOverlay.style.display = 'none';
+            celebrationPopup.style.display = 'none';
+        }, 5000);
+    }
+});
+</script>
+<style>
+/* Remove duplicate styles and keep only the essential ones */
+.complete-button {
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.complete-button:hover {
+    transform: scale(1.05);
+}
+
+.complete-button:active {
+    transform: scale(0.95);
+}
+
+/* Level Progress Bar */
+.level-progress {
+    width: 200px;
+    height: 20px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.level-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4ade80, #60a5fa);
+    transition: width 0.5s ease;
+}
+
+.level-progress-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    color: #1f2937;
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 20px;
+}
+
+/* Streak Multiplier */
+.streak-multiplier {
+    position: absolute;
+    top: -20px;
+    right: -10px;
+    background: #f59e0b;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    transform: scale(0);
+    transition: transform 0.3s ease;
+}
+
+.streak-multiplier.show {
+    transform: scale(1);
+}
+
+/* Points Animation */
+.points-popup {
+    position: fixed;
+    color: #4ade80;
+    font-weight: bold;
+    font-size: 1.5rem;
+    pointer-events: none;
+    animation: floatAndFade 1s ease-out forwards;
+    z-index: 1000;
+}
+
+@keyframes floatAndFade {
+    0% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+}
+
+/* Celebration System */
+#celebrationPopup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #4ade80, #60a5fa);
+    color: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    text-align: center;
+    z-index: 9999;
+    min-width: 300px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    0% { 
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+    100% { 
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+#celebrationPopup h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+#celebrationPopup p {
+    font-size: 1.25rem;
+    margin: 0.5rem 0;
+}
+
+#celebrationPopup #pointsEarned {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 1rem 0;
+}
+
+/* Overlay */
+#celebrationOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+}
+
+/* Achievement Badge */
+#achievementBadge {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    text-align: center;
+    min-width: 300px;
+}
+
+#achievementBadge.show {
+    display: block;
+    animation: slideDown 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes slideDown {
+    0% {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+#achievementBadge .title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+#achievementBadge .message {
+    font-size: 1.1rem;
+}
+
+/* Achievement Styles */
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.achievement-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.achievement-card:hover {
+    transform: translateY(-2px);
+}
+
+.achievement-card.locked {
+    opacity: 0.7;
+    background: #f3f4f6;
+}
+
+.achievement-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.achievement-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.achievement-description {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.achievement-points {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #f59e0b;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.achievement-progress {
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.achievement-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4ade80, #60a5fa);
+    transition: width 0.3s ease;
+}
+
+.achievement-unlocked {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(96, 165, 250, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #4ade80;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.achievement-card:hover .achievement-unlocked {
+    opacity: 1;
+}
+
+/* New UI Enhancements */
+.welcome-banner {
+    background: linear-gradient(135deg, #4ade80, #60a5fa);
+    color: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-banner h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-banner p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-card .icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.stat-card .value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #4f46e5;
+}
+
+.stat-card .label {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.habits-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.habits-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.category-filter {
+    background: white;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.category-filter select {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    background: white;
+    color: #1f2937;
+    font-size: 0.875rem;
+}
+
+.category-filter button {
+    background: #4f46e5;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    margin-left: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.category-filter button:hover {
+    background: #4338ca;
+}
+
+.habit-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.habit-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.habit-card.needs-completion {
+    border-color: #f59e0b;
+}
+
+.habit-card .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.habit-card .title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.habit-card .points {
+    background: #f3f4f6;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.habit-card .description {
+    color: #6b7280;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.habit-card .category {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.habit-card .stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.habit-card .stat {
+    text-align: center;
+}
+
+.habit-card .stat-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #4f46e5;
+}
+
+.habit-card .stat-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.habit-card .actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.complete-button {
+    background: #4ade80;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.complete-button:hover {
+    background: #22c55e;
+    transform: translateY(-1px);
+}
+
+.complete-button:active {
+    transform: translateY(0);
+}
+
+.streak-multiplier {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #f59e0b;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transform: scale(0);
+    transition: transform 0.3s ease;
+}
+
+.streak-multiplier.show {
+    transform: scale(1);
+}
+
+/* Achievement Styles */
+.achievements-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.achievements-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.achievements-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.achievement-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.achievement-card:hover {
+    transform: translateY(-2px);
+}
+
+.achievement-card.locked {
+    opacity: 0.7;
+    background: #f3f4f6;
+}
+
+.achievement-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.achievement-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.achievement-description {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.achievement-points {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #f59e0b;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.achievement-progress {
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.achievement-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4ade80, #60a5fa);
+    transition: width 0.3s ease;
+}
+
+.achievement-unlocked {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(96, 165, 250, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #4ade80;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.achievement-card:hover .achievement-unlocked {
+    opacity: 1;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner">
+        <h1>Welcome back, {{ current_user.username }}! 👋</h1>
+        <p>Keep up the great work on your habits!</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="icon">🎯</div>
+            <div class="value">{{ current_user.level }}</div>
+            <div class="label">Current Level</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon">⭐</div>
+            <div class="value">{{ current_user.points }}</div>
+            <div class="label">Total Points</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon">🔥</div>
+            <div class="value">{{ user_habits|length }}</div>
+            <div class="label">Active Habits</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon">🏆</div>
+            <div class="value">{{ current_user.achievements|length }}</div>
+            <div class="label">Achievements Unlocked</div>
+        </div>
+    </div>
+
+    <!-- Habits Section -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="habits-header">
+            <div class="flex items-center justify-between w-full">
+                <h2>Your Habits</h2>
+                <a href="{{ url_for('select_habits') }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center">
+                    <span class="mr-2">+</span> Add More Habits
+                </a>
+            </div>
+            <div class="category-filter">
+                <form method="GET" class="flex items-center">
+                    <select name="category" class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category.id == selected_category %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Filter</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Habits Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for user_habit in user_habits %}
+            <div class="habit-card {% if not user_habit.last_completed or user_habit.last_completed.date() < now.date() %}needs-completion{% endif %}">
+                <div class="header">
+                    <h3 class="title">{{ user_habit.habit.name }}</h3>
+                    <span class="points {% if user_habit.habit.is_good %}text-green-600{% else %}text-red-600{% endif %}">
+                        {{ user_habit.habit.points }} points
+                    </span>
+                </div>
+                <p class="description">{{ user_habit.habit.description }}</p>
+                {% if user_habit.habit.category %}
+                <span class="category" style="background-color: {{ user_habit.habit.category.color }}20; color: {{ user_habit.habit.category.color }}">
+                    {{ user_habit.habit.category.name }}
+                </span>
+                {% endif %}
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value">{{ user_habit.current_streak }}</div>
+                        <div class="stat-label">Current Streak</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">{{ user_habit.longest_streak }}</div>
+                        <div class="stat-label">Longest Streak</div>
+                    </div>
+                </div>
+                <div class="actions">
+                    <form action="{{ url_for('complete_habit', habit_id=user_habit.habit.id) }}" 
+                          method="POST" 
+                          class="inline habit-form"
+                          data-is-good="{{ user_habit.habit.is_good|lower }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="complete-button">
+                            Complete
+                            <div class="streak-multiplier">x{{ user_habit.current_streak }}</div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-span-full text-center py-12">
+                <p class="text-gray-600 text-lg">No habits selected yet. <a href="{{ url_for('select_habits') }}" class="text-indigo-600 hover:text-indigo-800">Add some habits</a> to get started!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Achievements Section -->
+    <div class="achievements-section">
+        <div class="achievements-header">
+            <h2>Your Achievements</h2>
+        </div>
+        <div class="achievements-grid">
+            {% for achievement in achievements %}
+            <div class="achievement-card {% if not achievement.unlocked %}locked{% endif %}">
+                <div class="achievement-icon">{{ achievement.icon }}</div>
+                <div class="achievement-name">{{ achievement.name }}</div>
+                <div class="achievement-description">{{ achievement.description }}</div>
+                <div class="achievement-points">+{{ achievement.points }}</div>
+                {% if not achievement.unlocked %}
+                <div class="achievement-progress">
+                    <div class="achievement-progress-bar" style="width: {{ achievement.progress }}%"></div>
+                </div>
+                {% else %}
+                <div class="achievement-unlocked">✓</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Celebration Overlay -->
+<div id="celebrationOverlay"></div>
+
+<!-- Celebration Popup -->
+<div id="celebrationPopup">
+    <div class="bg-gradient-to-r from-green-400 to-blue-500 text-white p-8 rounded-xl shadow-2xl text-center">
+        <h2 class="text-3xl font-bold mb-4">🎉 Great Job! 🎉</h2>
+        <p class="text-xl">You earned</p>
+        <p id="pointsEarned" class="text-4xl font-bold my-4">+0 points</p>
+        <p class="text-xl">Keep up the amazing work!</p>
+    </div>
+</div>
+
+<!-- Achievement Badge -->
+<div id="achievementBadge" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000;">
+    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-4 rounded-xl shadow-2xl text-center">
+        <div class="text-2xl font-bold mb-2">🏆 Achievement Unlocked!</div>
+        <div id="achievementText" class="text-xl"></div>
+    </div>
+</div>
+
+<!-- Audio Element -->
+<audio id="successSound" preload="auto" playsinline>
+    <source src="{{ url_for('static', filename='sounds/success.mp3') }}" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+
+
+<script>
+// Global function to play sound
+window.playSuccessSound = function() {
+    const audio = document.getElementById('successSound');
+    if (audio) {
+        audio.currentTime = 0;
+        audio.volume = 1.0;
+        audio.play().catch(error => console.log('Sound play failed:', error));
+    }
+};
+
+// Test function
+function testSound() {
+    window.playSuccessSound();
+}
+
+// Preload the sound
+document.addEventListener('DOMContentLoaded', function() {
+    const audio = document.getElementById('successSound');
+    if (audio) {
+        audio.load();
+    }
+});
+
+// Form submission handler
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('.habit-form');
+    forms.forEach(form => {
+        const button = form.querySelector('button');
+        const streakMultiplier = button.querySelector('.streak-multiplier');
+        const streak = parseInt(form.closest('.bg-white').querySelector('.text-gray-600').textContent.match(/\d+/)[0]);
+        
+        if (streak > 1) {
+            streakMultiplier.classList.add('show');
+        }
+        
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get points and multiplier
+            const points = parseInt(this.closest('.bg-white').querySelector('.rounded-full').textContent);
+            const multiplier = Math.min(Math.floor(streak / 7) + 1, 3);
+            
+            // Play sound with a small delay
+            setTimeout(() => {
+                const audio = document.getElementById('successSound');
+                if (audio) {
+                    audio.currentTime = 0;
+                    audio.volume = 1.0;
+                    audio.play().catch(error => console.log('Sound play failed:', error));
+                }
+            }, 100);
+            
+            // Submit form using fetch
+            try {
+                const formData = new FormData(this);
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    // Redirect to dashboard with success parameters
+                    window.location.href = `${window.location.pathname}?success=true&points=${points * multiplier}`;
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

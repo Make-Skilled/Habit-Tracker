@@ -1,0 +1,190 @@
+/* Ribbon Animation */
+.ribbon {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 150px;
+    height: 150px;
+    overflow: hidden;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    transform: rotate(45deg) translateY(-100%);
+    transition: all 0.5s ease-in-out;
+}
+
+.ribbon.show {
+    opacity: 1;
+    transform: rotate(45deg) translateY(0);
+}
+
+.ribbon::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+    transform-origin: 100% 100%;
+    animation: ribbonWave 1s ease-in-out;
+}
+
+@keyframes ribbonWave {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Success Animation */
+.success-animation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(34, 197, 94, 0.95);
+    color: white;
+    padding: 1.5rem 3rem;
+    border-radius: 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s ease-in-out;
+    z-index: 9999;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.success-animation.show {
+    opacity: 1;
+    visibility: visible;
+    animation: bounceIn 0.5s ease-in-out;
+}
+
+/* Failure Animation */
+.failure-animation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(239, 68, 68, 0.95);
+    color: white;
+    padding: 1.5rem 3rem;
+    border-radius: 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s ease-in-out;
+    z-index: 9999;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.failure-animation.show {
+    opacity: 1;
+    visibility: visible;
+    animation: bounceIn 0.5s ease-in-out;
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: translate(-50%, -50%) scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+    70% {
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Celebration Animation */
+.celebration-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    display: none;
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.celebration-overlay.show {
+    display: flex;
+}
+
+.celebration-content {
+    text-align: center;
+    animation: popIn 0.5s ease-out;
+}
+
+.celebration-content h2 {
+    font-size: 3rem;
+    color: #4ecdc4;
+    margin-bottom: 1rem;
+}
+
+.celebration-content p {
+    font-size: 1.5rem;
+    color: #666;
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Success Message */
+.success-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    z-index: 1000000;
+    opacity: 0;
+    transition: all 0.3s ease-out;
+}
+
+.celebration-container.show .success-message {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+
+.success-message h2 {
+    color: #4ecdc4;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.success-message p {
+    color: #666;
+    font-size: 1.4rem;
+    font-weight: 500;
+} 

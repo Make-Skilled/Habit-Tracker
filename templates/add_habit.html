@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Habit{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-gray-900">Add New Habit</h1>
+        <a href="{{ url_for('dashboard') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="mt-8">
+        <div class="bg-white shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <form action="{{ url_for('add_habit') }}" method="POST">
+                    <div class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Habit Name</label>
+                            <input type="text" name="name" id="name" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                            <textarea name="description" id="description" rows="3"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Habit Type</label>
+                            <div class="mt-2 space-y-4">
+                                <div class="flex items-center">
+                                    <input type="radio" name="is_good" value="1" checked
+                                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                    <label class="ml-3 block text-sm font-medium text-gray-700">
+                                        Good Habit
+                                    </label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" name="is_good" value="0"
+                                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                    <label class="ml-3 block text-sm font-medium text-gray-700">
+                                        Bad Habit
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="points" class="block text-sm font-medium text-gray-700">Points</label>
+                            <input type="number" name="points" id="points" value="10" min="1" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                    </div>
+
+                    <div class="mt-5 flex justify-end space-x-3">
+                        <a href="{{ url_for('dashboard') }}"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit"
+                            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Create Habit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

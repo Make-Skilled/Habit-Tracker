@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Select Habits{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Select Habits</h1>
+        <a href="{{ url_for('dashboard') }}" class="text-indigo-600 hover:text-indigo-900">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="mb-8">
+        <form method="GET" class="flex space-x-4">
+            <input type="text" 
+                   name="search" 
+                   value="{{ search_query }}"
+                   placeholder="Search habits..." 
+                   class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            <button type="submit" 
+                    class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                Search
+            </button>
+        </form>
+    </div>
+
+    {% if search_query %}
+    <div class="mb-4">
+        <p class="text-gray-600">
+            Showing results for "{{ search_query }}"
+            {% if habits|length == 0 %}
+            - No habits found
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+
+    <form method="POST" class="space-y-6">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for habit in habits %}
+            <div class="bg-white rounded-lg shadow-md p-6 {% if habit.category %}border-l-4{% endif %}" 
+                 {% if habit.category %}style="border-left-color: {{ habit.category.color }}"{% endif %}>
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">{{ habit.name }}</h3>
+                        <p class="text-sm text-gray-600">{{ habit.description }}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-sm font-medium {% if habit.is_good %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                        {{ habit.points }} points
+                    </span>
+                </div>
+                {% if habit.category %}
+                <div class="mb-4">
+                    <span class="inline-block px-2 py-1 rounded-full text-sm font-medium" 
+                          style="background-color: {{ habit.category.color }}20; color: {{ habit.category.color }}">
+                        {{ habit.category.name }}
+                    </span>
+                </div>
+                {% endif %}
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           name="habits" 
+                           value="{{ habit.id }}" 
+                           id="habit-{{ habit.id }}"
+                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    <label for="habit-{{ habit.id }}" class="ml-2 block text-sm text-gray-900">
+                        Select this habit
+                    </label>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-span-full text-center py-12">
+                <p class="text-gray-600 text-lg">
+                    {% if search_query %}
+                    No habits found matching your search. Try different keywords.
+                    {% else %}
+                    No habits available to select. You've already selected all available habits!
+                    {% endif %}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if habits %}
+        <div class="flex justify-end">
+            <button type="submit" 
+                    class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
+                Add Selected Habits
+            </button>
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %} 
